@@ -1,0 +1,4186 @@
+{
+	"info": {
+		"_postman_id": "9ac89008-20e7-47ec-908e-f174cb6c632a",
+		"name": "GoRest API 接口测试",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "49611232"
+	},
+	"item": [
+		{
+			"name": "创建用户接口",
+			"item": [
+				{
+					"name": "正向用例",
+					"item": [
+						{
+							"name": "USER_CREATE_001  正常创建用户",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"USER_CREATE_001 - 状态码为 201\", function () {\r",
+											"    pm.response.to.have.status(201);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"USER_CREATE_001 - 响应体字段校验\", function () {\r",
+											"    const jsonData = pm.response.json();\r",
+											"    pm.expect(jsonData).to.have.property('id');\r",
+											"    pm.environment.set(\"created_user_id\", pm.response.json().id);\r",
+											"    pm.environment.set(\"exact_user_name\", pm.response.json().name);\r",
+											"    const expectedName = pm.variables.get(\"req_name\");\r",
+											"    const expectedEmail = pm.variables.get(\"req_email\");\r",
+											"    const expectedGender = pm.variables.get(\"req_gender\");\r",
+											"    const expectedStatus = pm.variables.get(\"req_status\");\r",
+											"    \r",
+											"    pm.environment.set(\"existing_email\", expectedEmail);\r",
+											"    pm.expect(jsonData.name).to.eql(expectedName);\r",
+											"    pm.expect(jsonData.email).to.eql(expectedEmail);\r",
+											"    pm.expect(jsonData.gender).to.eql(expectedGender);\r",
+											"    pm.expect(jsonData.status).to.eql(expectedStatus);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"USER_CREATE_002 - Location 头指向用户详情\", function () {\r",
+											"    const locationHeader = pm.response.headers.get(\"Location\");\r",
+											"    pm.expect(locationHeader).to.match(/\\/public\\/v2\\/users\\/\\d+$/);\r",
+											"});\r",
+											"\r",
+											""
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"const timestamp = Date.now();\r",
+											"pm.variables.set(\"req_name\", \"zhangyi\");\r",
+											"pm.variables.set(\"req_email\", \"zhangyi\" + timestamp + \"@test.com\"); \r",
+											"pm.variables.set(\"req_gender\", \"male\");\r",
+											"pm.variables.set(\"req_status\", \"active\");"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\": \"{{req_name}}\",\r\n    \"email\": \"{{req_email}}\",\r\n    \"gender\": \"{{req_gender}}\",\r\n    \"status\": \"{{req_status}}\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{base_url}}/{{resource_users}}",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"{{resource_users}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "USER_CREATE_008 name包含特殊符号",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"USER_CREATE_008 状态码为201\", function () {\r",
+											"    pm.response.to.have.status(201);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"USER_CREATE_008 响应体字段校验\", function () {\r",
+											"    const jsonData = pm.response.json();\r",
+											"    pm.expect(jsonData).to.have.property(\"id\");\r",
+											"    pm.environment.set(\"bug_test_user_id\", pm.response.json().id);\r",
+											"    const expectName = pm.variables.get(\"req_name\");\r",
+											"    const expectEmail = pm.variables.get(\"req_email\");\r",
+											"    const expectGender = pm.variables.get(\"req_gender\");\r",
+											"    const expectStatus = pm.variables.get(\"req_status\");\r",
+											"    pm.expect(jsonData.name).to.eql(expectName);\r",
+											"    pm.expect(jsonData.email).to.eql(expectEmail);\r",
+											"    pm.expect(jsonData.gender).to.eql(expectGender);\r",
+											"    pm.expect(jsonData.status).to.eql(expectStatus);\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"const timestamp = Date.now();\r",
+											"pm.variables.set(\"req_name\",\"张三￥\");\r",
+											"pm.variables.set(\"req_email\",\"name_special_symbol\"+timestamp+\"@test.com\");\r",
+											"pm.variables.set(\"req_gender\",\"male\");\r",
+											"pm.variables.set(\"req_status\",\"active\");"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\": \"{{req_name}}\",\r\n    \"email\": \"{{req_email}}\",\r\n    \"gender\": \"{{req_gender}}\",\r\n    \"status\": \"{{req_status}}\"\r\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/{{resource_users}}",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"{{resource_users}}"
+									]
+								},
+								"description": "初始预期：422（因文档并未明确name能包含特殊字符）  \n结果：接口返回 201，且通过 GET /users/{id} 携带合法 Token 可成功查询到该用户信息。  \n结论：该接口当前对 name 字段无特殊字符校验限制，行为属 API 隐性特性。"
+							},
+							"response": []
+						},
+						{
+							"name": "USER_CREATE_010 name长度为200",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"const timestamp = Date.now();\r",
+											"const baseStr = \"zhangsan\";\r",
+											"const suffixLength = 3;\r",
+											"const paddingLength = 200 - baseStr.length - suffixLength;\r",
+											"const paddingStr = \"a\".repeat(paddingLength);\r",
+											"const dynamicSuffix = (timestamp % 1000).toString().padStart(suffixLength, \"0\");\r",
+											"const name = baseStr + paddingStr + dynamicSuffix;\r",
+											"\r",
+											"pm.variables.set(\"req_name\", name);                     \r",
+											"pm.variables.set(\"req_email\", \"long_name_test\" + timestamp + \"@test.com\");\r",
+											"pm.variables.set(\"req_gender\", \"male\");\r",
+											"pm.variables.set(\"req_status\", \"active\");"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"USER_CREATE_010 状态码为201\", function () {\r",
+											"    pm.response.to.have.status(201);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"USER_CREATE_010 响应体字段校验\", function () {\r",
+											"    const jsonData = pm.response.json();\r",
+											"    pm.expect(jsonData).to.have.property(\"id\");\r",
+											"    pm.environment.set(\"persist_user_id\", pm.response.json().id);\r",
+											"    pm.environment.set(\"persist_user_name\", pm.response.json().name);\r",
+											"    pm.environment.set(\"persist_email\", pm.response.json().email);\r",
+											"    const expectName = pm.variables.get(\"req_name\");\r",
+											"    const expectEmail = pm.variables.get(\"req_email\");\r",
+											"    const expectGender = pm.variables.get(\"req_gender\");\r",
+											"    const expectStatus = pm.variables.get(\"req_status\");\r",
+											"    pm.expect(jsonData.name).to.eql(expectName);\r",
+											"    pm.expect(jsonData.email).to.eql(expectEmail);\r",
+											"    pm.expect(jsonData.gender).to.eql(expectGender);\r",
+											"    pm.expect(jsonData.status).to.eql(expectStatus);\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\": \"{{req_name}}\",\r\n    \"email\": \"{{req_email}}\",\r\n    \"gender\": \"{{req_gender}}\",\r\n    \"status\": \"{{req_status}}\"\r\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/{{resource_users}}",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"{{resource_users}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "USER_CREATE_012 name长度为100",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"const timestamp = Date.now();\r",
+											"const baseStr = \"zhangsan\";\r",
+											"const suffixLength = 3;\r",
+											"const paddingLength = 100 - baseStr.length - suffixLength;\r",
+											"const paddingStr = \"a\".repeat(paddingLength);\r",
+											"const dynamicSuffix = (timestamp % 1000).toString().padStart(suffixLength, \"0\");\r",
+											"const name = baseStr + paddingStr + dynamicSuffix;\r",
+											"\r",
+											"pm.variables.set(\"req_name\", name);                     \r",
+											"pm.variables.set(\"req_email\", \"long_name_test\" + timestamp + \"@test.com\");\r",
+											"pm.variables.set(\"req_gender\", \"male\");\r",
+											"pm.variables.set(\"req_status\", \"active\");"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"USER_CREATE_012 状态码为201\", function () {\r",
+											"    pm.response.to.have.status(201);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"USER_CREATE_012 响应体字段校验\", function () {\r",
+											"    const jsonData = pm.response.json();\r",
+											"    pm.expect(jsonData).to.have.property(\"id\");\r",
+											"    const expectName = pm.variables.get(\"req_name\");\r",
+											"    const expectEmail = pm.variables.get(\"req_email\");\r",
+											"    const expectGender = pm.variables.get(\"req_gender\");\r",
+											"    const expectStatus = pm.variables.get(\"req_status\");\r",
+											"    pm.expect(jsonData.name).to.eql(expectName);\r",
+											"    pm.expect(jsonData.email).to.eql(expectEmail);\r",
+											"    pm.expect(jsonData.gender).to.eql(expectGender);\r",
+											"    pm.expect(jsonData.status).to.eql(expectStatus);\r",
+											"\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\": \"{{req_name}}\",\r\n    \"email\": \"{{req_email}}\",\r\n    \"gender\": \"{{req_gender}}\",\r\n    \"status\": \"{{req_status}}\"\r\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/{{resource_users}}",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"{{resource_users}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "USER_CREATE_015 email长度为200",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"const timestamp = Date.now();\r",
+											"const baseStr = \"zhangsan\";\r",
+											"const suffixLength = 3;\r",
+											"const finStr = \"@test.com\"\r",
+											"const paddingLength = 200 - baseStr.length - suffixLength - finStr;\r",
+											"const paddingStr = \"a\".repeat(paddingLength);\r",
+											"const dynamicSuffix = (timestamp % 1000).toString().padStart(suffixLength, \"0\");\r",
+											"const email = baseStr + paddingStr + dynamicSuffix + finStr;\r",
+											"\r",
+											"pm.variables.set(\"req_name\", \"张三\");                     \r",
+											"pm.variables.set(\"req_email\", email);\r",
+											"pm.variables.set(\"req_gender\", \"male\");\r",
+											"pm.variables.set(\"req_status\", \"active\");"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"USER_CREATE_010 状态码为201\", function () {\r",
+											"    pm.response.to.have.status(201);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"USER_CREATE_010 响应体字段校验\", function () {\r",
+											"    const jsonData = pm.response.json();\r",
+											"    pm.expect(jsonData).to.have.property(\"id\");\r",
+											"    const expectName = pm.variables.get(\"req_name\");\r",
+											"    const expectEmail = pm.variables.get(\"req_email\");\r",
+											"    const expectGender = pm.variables.get(\"req_gender\");\r",
+											"    const expectStatus = pm.variables.get(\"req_status\");\r",
+											"    pm.expect(jsonData.name).to.eql(expectName);\r",
+											"    pm.expect(jsonData.email).to.eql(expectEmail);\r",
+											"    pm.expect(jsonData.gender).to.eql(expectGender);\r",
+											"    pm.expect(jsonData.status).to.eql(expectStatus);\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\": \"{{req_name}}\",\r\n    \"email\": \"{{req_email}}\",\r\n    \"gender\": \"{{req_gender}}\",\r\n    \"status\": \"{{req_status}}\"\r\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/{{resource_users}}",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"{{resource_users}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "USER_CREATE_017",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"const timestamp = Date.now();\r",
+											"const baseStr = \"zhangsan\";\r",
+											"const suffixLength = 3;\r",
+											"const finStr = \"@test.com\"\r",
+											"const paddingLength = 100 - baseStr.length - suffixLength - finStr;\r",
+											"const paddingStr = \"a\".repeat(paddingLength);\r",
+											"const dynamicSuffix = (timestamp % 1000).toString().padStart(suffixLength, \"0\");\r",
+											"const email = baseStr + paddingStr + dynamicSuffix + finStr;\r",
+											"\r",
+											"pm.variables.set(\"req_name\", \"张三\");                     \r",
+											"pm.variables.set(\"req_email\", email);\r",
+											"pm.variables.set(\"req_gender\", \"male\");\r",
+											"pm.variables.set(\"req_status\", \"active\");"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"USER_CREATE_017 状态码为201\", function () {\r",
+											"    pm.response.to.have.status(201);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"USER_CREATE_017 响应体字段校验\", function () {\r",
+											"    const jsonData = pm.response.json();\r",
+											"    pm.expect(jsonData).to.have.property(\"id\");\r",
+											"    const expectName = pm.variables.get(\"req_name\");\r",
+											"    const expectEmail = pm.variables.get(\"req_email\");\r",
+											"    const expectGender = pm.variables.get(\"req_gender\");\r",
+											"    const expectStatus = pm.variables.get(\"req_status\");\r",
+											"    pm.expect(jsonData.name).to.eql(expectName);\r",
+											"    pm.expect(jsonData.email).to.eql(expectEmail);\r",
+											"    pm.expect(jsonData.gender).to.eql(expectGender);\r",
+											"    pm.expect(jsonData.status).to.eql(expectStatus);\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\": \"{{req_name}}\",\r\n    \"email\": \"{{req_email}}\",\r\n    \"gender\": \"{{req_gender}}\",\r\n    \"status\": \"{{req_status}}\"\r\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/{{resource_users}}",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"{{resource_users}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "USER_CREATE_029 token放在url",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"const timestamp = Date.now();\r",
+											"pm.variables.set(\"req_name\", \"张三\");\r",
+											"pm.variables.set(\"req_email\", \"error_url_test\" + timestamp + \"@test.com\"); \r",
+											"pm.variables.set(\"req_gender\", \"male\");\r",
+											"pm.variables.set(\"req_status\", \"active\");"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"USER_CREATE_029 状态码为201\", function () {\r",
+											"    pm.response.to.have.status(201);\r",
+											"});\r",
+											"pm.test(\"USER_CREATE_029 响应体字段校验\", function () {\r",
+											"    const jsonData = pm.response.json();\r",
+											"    pm.expect(jsonData).to.have.property(\"id\");\r",
+											"    const expectName = pm.variables.get(\"req_name\");\r",
+											"    const expectEmail = pm.variables.get(\"req_email\");\r",
+											"    const expectGender = pm.variables.get(\"req_gender\");\r",
+											"    const expectStatus = pm.variables.get(\"req_status\");\r",
+											"    pm.expect(jsonData.name).to.eql(expectName);\r",
+											"    pm.expect(jsonData.email).to.eql(expectEmail);\r",
+											"    pm.expect(jsonData.gender).to.eql(expectGender);\r",
+											"    pm.expect(jsonData.status).to.eql(expectStatus);\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\": \"{{req_name}}\",\r\n    \"email\": \"{{req_email}}\",\r\n    \"gender\": \"{{req_gender}}\",\r\n    \"status\": \"{{req_status}}\"\r\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/{{resource_users}}/?access-token={{token}}",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"{{resource_users}}",
+										""
+									],
+									"query": [
+										{
+											"key": "access-token",
+											"value": "{{token}}"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "参数异常测试",
+					"item": [
+						{
+							"name": "USER_CREATE_004 name参数缺失",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"const timestamp = Date.now();\r",
+											"pm.variables.set(\"req_email\", \"no_name_test\" + timestamp + \"@test.com\"); \r",
+											"pm.variables.set(\"req_gender\", \"male\");\r",
+											"pm.variables.set(\"req_status\", \"active\");"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"USER_CREATE_004 状态码为422\", function () {\r",
+											"    pm.response.to.have.status(422);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"USER_CREATE_004 错误信息校验\", function () {\r",
+											"    const jsonData = pm.response.json();\r",
+											"    const errorItem = jsonData[0];\r",
+											"    pm.expect(errorItem).to.have.property(\"field\");\r",
+											"    pm.expect(errorItem.field).to.eql(\"name\");\r",
+											"    pm.expect(errorItem).to.have.property(\"message\");\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"email\": \"{{req_email}}\",\r\n    \"gender\": \"{{req_gender}}\",\r\n    \"status\": \"{{req_status}}\"\r\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/{{resource_users}}",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"{{resource_users}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "USER_CREATE_005 email参数缺失",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"pm.variables.set(\"req_name\", \"张三\");\r",
+											"pm.variables.set(\"req_gender\", \"male\");\r",
+											"pm.variables.set(\"req_status\", \"active\");"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"USER_CREATE_005 状态码为422\", function () {\r",
+											"    pm.response.to.have.status(422);\r",
+											"});\r",
+											"pm.test(\"USER_CREATE_005 错误信息校验\", function () {\r",
+											"    const jsonData = pm.response.json();\r",
+											"    const errorItem = jsonData[0];\r",
+											"    pm.expect(errorItem).to.have.property(\"field\");\r",
+											"    pm.expect(errorItem.field).to.eql(\"email\");\r",
+											"    pm.expect(errorItem).to.have.property(\"message\");\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"protocolProfileBehavior": {
+								"strictSSL": false
+							},
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\": \"{{req_email}}\",\r\n    \"gender\": \"{{req_gender}}\",\r\n    \"status\": \"{{req_status}}\"\r\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/{{resource_users}}",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"{{resource_users}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "USER_CREATE_006 gender参数缺失",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"const timestamp = Date.now();\r",
+											"pm.variables.set(\"req_name\", \"张三\");\r",
+											"pm.variables.set(\"req_email\", \"no_gender_test\" + timestamp + \"@test.com\"); \r",
+											"pm.variables.set(\"req_status\", \"active\");"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"USER_CREATE_006 状态码为422\", function () {\r",
+											"    pm.response.to.have.status(422);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"USER_CREATE_006 错误信息校验\", function () {\r",
+											"    const jsonData = pm.response.json();\r",
+											"    const errorItem = jsonData[0];\r",
+											"    pm.expect(errorItem).to.have.property(\"field\");\r",
+											"    pm.expect(errorItem.field).to.eql(\"gender\");\r",
+											"    pm.expect(errorItem).to.have.property(\"message\")\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\": \"{{req_name}}\",\r\n    \"email\": \"{{req_email}}\",\r\n    \"status\": \"{{req_status}}\"\r\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/{{resource_users}}",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"{{resource_users}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "USER_CREATE_007 status参数缺失",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"USER_CREATE_007 状态码为422\", function () {\r",
+											"    pm.response.to.have.status(422);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"USER_CREATE_007 错误信息校验\", function () {\r",
+											"    var jsonData = pm.response.json();\r",
+											"    errorItem = jsonData[0]\r",
+											"    pm.expect(errorItem).to.have.property(\"field\");\r",
+											"    pm.expect(errorItem.field).to.eql(\"status\");\r",
+											"    pm.expect(errorItem).to.have.property(\"message\");\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"const timestamp = Date.now();\r",
+											"pm.variables.set(\"req_name\", \"张三\");\r",
+											"pm.variables.set(\"req_email\", \"no_status_test\" + timestamp + \"@test.com\"); \r",
+											"pm.variables.set(\"req_gender\", \"male\");\r",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\": \"{{req_name}}\",\r\n    \"email\": \"{{req_email}}\",\r\n    \"gender\": \"{{req_gender}}\"\r\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/{{resource_users}}",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"{{resource_users}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "USER_CREATR_009 name为空",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"USER_CREATE_009 状态码为422\", function () {\r",
+											"    pm.response.to.have.status(422);\r",
+											"});\r",
+											"pm.test(\"USER_CREATE_009 错误信息校验\", function () {\r",
+											"    var jsonData = pm.response.json();\r",
+											"    errorItem = jsonData[0];\r",
+											"    pm.expect(errorItem).to.have.property(\"field\");\r",
+											"    pm.expect(errorItem.field).to.eql(\"name\");\r",
+											"    pm.expect(errorItem).to.have.property(\"message\");\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"const timestamp = Date.now();\r",
+											"pm.variables.set(\"req_name\", \"\");\r",
+											"pm.variables.set(\"req_email\", \"name_empty_test\" + timestamp + \"@test.com\"); \r",
+											"pm.variables.set(\"req_gender\", \"male\");\r",
+											"pm.variables.set(\"req_status\", \"active\");"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\": \"{{req_name}}\",\r\n    \"email\": \"{{req_email}}\",\r\n    \"gender\": \"{{req_gender}}\",\r\n    \"status\": \"{{req_status}}\"\r\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/{{resource_users}}",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"{{resource_users}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "USER_CREATE_011 name长度为201",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"const timestamp = Date.now();\r",
+											"const baseStr = \"zhangsan\";\r",
+											"const suffixLength = 3;\r",
+											"const paddingLength = 201 - baseStr.length - suffixLength;\r",
+											"const paddingStr = \"a\".repeat(paddingLength);\r",
+											"const dynamicSuffix = (timestamp % 1000).toString().padStart(suffixLength, \"0\");\r",
+											"const name = baseStr + paddingStr + dynamicSuffix;\r",
+											"\r",
+											"pm.variables.set(\"req_name\", name);                     \r",
+											"pm.variables.set(\"req_email\", \"long_name_test\" + timestamp + \"@test.com\");\r",
+											"pm.variables.set(\"req_gender\", \"male\");\r",
+											"pm.variables.set(\"req_status\", \"active\");"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"USER_CREATE_011 状态码为422\", function () {\r",
+											"    pm.response.to.have.status(422);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"USER_CREATE_011 错误信息校验\", function () {\r",
+											"    const jsonData = pm.response.json();\r",
+											"    const errorItem = jsonData[0];\r",
+											"    pm.expect(errorItem).to.have.property(\"field\");\r",
+											"    pm.expect(errorItem.field).to.eql(\"name\");\r",
+											"    pm.expect(errorItem).to.have.property(\"message\");\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\": \"{{req_name}}\",\r\n    \"email\": \"{{req_email}}\",\r\n    \"gender\": \"{{req_gender}}\",\r\n    \"status\": \"{{req_status}}\"\r\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/{{resource_users}}",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"{{resource_users}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "USER_CREATE_013 email参数格式错误",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"const timestamp = Date.now();\r",
+											"pm.variables.set(\"req_name\", \"张三\");\r",
+											"pm.variables.set(\"req_email\", \"email_format_error\" + timestamp + \"test.com\"); \r",
+											"pm.variables.set(\"req_gender\", \"male\");\r",
+											"pm.variables.set(\"req_status\", \"active\");"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"USER_CREATE_012 状态码为422\", function () {\r",
+											"    pm.response.to.have.status(422);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"USER_CREATE_012 错误信息校验\", function () {\r",
+											"    const jsonData = pm.response.json();\r",
+											"    const errorItem = jsonData[0];\r",
+											"    pm.expect(errorItem).to.have.property(\"field\");\r",
+											"    pm.expect(errorItem.field).to.eql(\"email\");\r",
+											"    pm.expect(errorItem).to.have.property(\"message\");\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\": \"{{req_name}}\",\r\n    \"email\": \"{{req_email}}\",\r\n    \"gender\": \"{{req_gender}}\",\r\n    \"status\": \"{{req_status}}\"\r\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/{{resource_users}}",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"{{resource_users}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "USR_CREATE_014 email参数为空",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"pm.variables.set(\"req_name\", \"张三\");\r",
+											"pm.variables.set(\"req_email\", \"\"); \r",
+											"pm.variables.set(\"req_gender\", \"male\");\r",
+											"pm.variables.set(\"req_status\", \"active\");"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"USER_CREATE_014 状态码为422\", function () {\r",
+											"    pm.response.to.have.status(422);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"USER_CREATE_014 错误信息校验\", function () {\r",
+											"    const jsonData = pm.response.json();\r",
+											"    const errorItem = jsonData[0];\r",
+											"    pm.expect(errorItem).to.have.property(\"field\");\r",
+											"    pm.expect(errorItem.field).to.eql(\"email\");\r",
+											"    pm.expect(errorItem).to.have.property(\"message\");\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"protocolProfileBehavior": {
+								"strictSSL": false
+							},
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "\r\n    \"name\": \"{{req_name}}\",\r\n    \"email\": \"{{req_email}}\",\r\n    \"gender\": \"{{req_gender}}\",\r\n    \"status\": \"{{req_status}}\"\r\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/{{resource_users}}",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"{{resource_users}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "USER_CREATE_016 email长度为201",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"const timestamp = Date.now();\r",
+											"const baseStr = \"zhangsan\";\r",
+											"const suffixLength = 3;\r",
+											"const finStr = \"@test.com\"\r",
+											"const paddingLength = 201 - baseStr.length - suffixLength - finStr;\r",
+											"const paddingStr = \"a\".repeat(paddingLength);\r",
+											"const dynamicSuffix = (timestamp % 1000).toString().padStart(suffixLength, \"0\");\r",
+											"const email = baseStr + paddingStr + dynamicSuffix + finStr;\r",
+											"\r",
+											"pm.variables.set(\"req_name\", \"张三\");                     \r",
+											"pm.variables.set(\"req_email\", email);\r",
+											"pm.variables.set(\"req_gender\", \"male\");\r",
+											"pm.variables.set(\"req_status\", \"active\");"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"USER_CREATE_016 状态码为422\", function () {\r",
+											"    pm.response.to.have.status(422);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Your test name\", function () {\r",
+											"    const jsonData = pm.response.json();\r",
+											"    const errorItem  = jsonData[0];\r",
+											"    pm.expect(errorItem).to.have.property(\"field\");\r",
+											"    pm.expect(errorItem.field).to.eql(\"email\");\r",
+											"    pm.expect(errorItem).to.have.property(\"message\");\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\": \"{{req_name}}\",\r\n    \"email\": \"{{req_email}}\",\r\n    \"gender\": \"{{req_gender}}\",\r\n    \"status\": \"{{req_status}}\"\r\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/{{resource_users}}",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"{{resource_users}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "USER_CREATE_018 gender传入非法值",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"const timestamp = Date.now();\r",
+											"pm.variables.set(\"req_name\", \"张三\");\r",
+											"pm.variables.set(\"req_email\", \"gender_illegal_test\" + timestamp + \"@test.com\"); \r",
+											"pm.variables.set(\"req_gender\", \"zoo\");\r",
+											"pm.variables.set(\"req_status\",\"active\");"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"USER_CREATE_018 状态码为422\", function () {\r",
+											"    pm.response.to.have.status(422);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"USER_CREATE_018 错误信息校验\", function () {\r",
+											"    const jsonData = pm.response.json();\r",
+											"    const errorItem = jsonData[0];\r",
+											"    pm.expect(errorItem).to.have.property(\"field\");\r",
+											"    pm.expect(errorItem.field).to.eql(\"gender\");\r",
+											"    pm.expect(errorItem).to.have.property(\"message\");\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"protocolProfileBehavior": {
+								"strictSSL": false
+							},
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\": \"{{req_name}}\",\r\n    \"email\": \"{{req_email}}\",\r\n    \"gender\": \"{{req_gender}}\",\r\n    \"status\": \"{{req_status}}\"\r\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/{{resource_users}}",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"{{resource_users}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "USER_CREATE_019 gender参数为空",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"const timestamp = Date.now();\r",
+											"pm.variables.set(\"req_name\", \"张三\");\r",
+											"pm.variables.set(\"req_email\", \"gender_empty_test\" + timestamp + \"@test.com\"); \r",
+											"pm.variables.set(\"req_gender\", \"\");\r",
+											"pm.variables.set(\"req_status\", \"active\");"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"USER_CREATE_019 状态码为422\", function () {\r",
+											"    pm.response.to.have.status(422);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"USER_CREATE_019 错误信息校验\", function () {\r",
+											"    const jsonData = pm.response.json();\r",
+											"    const errorItem = jsonData[0];\r",
+											"    pm.expect(errorItem).to.have.property(\"field\");\r",
+											"    pm.expect(errorItem.field).to.eql(\"gender\");\r",
+											"    pm.expect(errorItem).to.have.property(\"message\");\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\": \"{{req_name}}\",\r\n    \"email\": \"{{req_email}}\",\r\n    \"gender\": \"{{req_gender}}\",\r\n    \"status\": \"{{req_status}}\"\r\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/{{resource_users}}",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"{{resource_users}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "USER_CREATE_020 status传入非法值",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"const timestamp = Date.now();\r",
+											"pm.variables.set(\"req_name\", \"张三\");\r",
+											"pm.variables.set(\"req_email\", \"status_illegal_test\" + timestamp + \"@test.com\"); \r",
+											"pm.variables.set(\"req_gender\", \"male\");\r",
+											"pm.variables.set(\"req_status\",\"zoo\");"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"USER_CREATE_018 状态码为422\", function () {\r",
+											"    pm.response.to.have.status(422);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"USER_CREATE_018 错误信息校验\", function () {\r",
+											"    const jsonData = pm.response.json();\r",
+											"    const errorItem = jsonData[0];\r",
+											"    pm.expect(errorItem).to.have.property(\"field\");\r",
+											"    pm.expect(errorItem.field).to.eql(\"status\");\r",
+											"    pm.expect(errorItem).to.have.property(\"message\");\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\": \"{{req_name}}\",\r\n    \"email\": \"{{req_email}}\",\r\n    \"gender\": \"{{req_gender}}\",\r\n    \"status\": \"{{req_status}}\"\r\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/{{resource_users}}",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"{{resource_users}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "USER_CREATE_021 status为空",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"const timestamp = Date.now();\r",
+											"pm.variables.set(\"req_name\", \"张三\");\r",
+											"pm.variables.set(\"req_email\", \"status_empty_test\" + timestamp + \"@test.com\"); \r",
+											"pm.variables.set(\"req_gender\", \"male\");\r",
+											"pm.variables.set(\"req_status\", \"\");"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"USER_CREATE_021 状态码为422\", function () {\r",
+											"    pm.response.to.have.status(422);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"USER_CREATE_021 错误信息校验\", function () {\r",
+											"    const jsonData = pm.response.json();\r",
+											"    const errorItem = jsonData[0];\r",
+											"    pm.expect(errorItem).to.have.property(\"field\");\r",
+											"    pm.expect(errorItem.field).to.eql(\"status\");\r",
+											"    pm.expect(errorItem).to.have.property(\"message\");\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\": \"{{req_name}}\",\r\n    \"email\": \"{{req_email}}\",\r\n    \"gender\": \"{{req_gender}}\",\r\n    \"status\": \"{{req_status}}\"\r\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/{{resource_users}}",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"{{resource_users}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "USER_CREATE_022 请求体为空",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"USER_CREATE_022 状态码为422\", function () {\r",
+											"    pm.response.to.have.status(422);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"USER_CREATE_022 错误信息校验\", function () {\r",
+											"    const jsonData = pm.response.json();\r",
+											"    const nameError = jsonData[1];\r",
+											"    const emailError = jsonData[0];\r",
+											"    const genderError = jsonData[2];\r",
+											"    const statusError = jsonData[3];\r",
+											"    pm.expect(emailError).to.have.property(\"field\");\r",
+											"    pm.expect(emailError.field).to.eql(\"email\");\r",
+											"    pm.expect(emailError).to.have.property(\"message\");\r",
+											"    \r",
+											"    pm.expect(nameError).to.have.property(\"field\");\r",
+											"    pm.expect(nameError.field).to.eql(\"name\");\r",
+											"    pm.expect(nameError).to.have.property(\"message\");\r",
+											"\r",
+											"    pm.expect(genderError).to.have.property(\"field\");\r",
+											"    pm.expect(genderError.field).to.eql(\"gender\");\r",
+											"    pm.expect(genderError).to.have.property(\"message\");\r",
+											"\r",
+											"    pm.expect(statusError).to.have.property(\"field\");\r",
+											"    pm.expect(statusError.field).to.eql(\"status\");\r",
+											"    pm.expect(statusError).to.have.property(\"message\");\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"protocolProfileBehavior": {
+								"strictSSL": true
+							},
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/{{resource_users}}",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"{{resource_users}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "USER_CREATE_023 传入文档未定义的参数",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"const timestamp = Date.now();\r",
+											"pm.variables.set(\"req_name\", \"张三\");\r",
+											"pm.variables.set(\"req_email\", \"unknow_para\" + timestamp + \"@test.com\"); \r",
+											"pm.variables.set(\"req_gender\", \"male\");\r",
+											"pm.variables.set(\"req_status\", \"active\");\r",
+											"pm.variables.set(\"req_mes\",\"para\")"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"USER_CREATE_023 状态码为201\", function () {\r",
+											"    pm.response.to.have.status(201);\r",
+											"});\r",
+											"pm.test(\"USER_CREATE_023 响应体字段校验\", function () {\r",
+											"    const jsonData = pm.response.json();\r",
+											"\r",
+											"    pm.expect(jsonData).to.have.property('id');\r",
+											"\r",
+											"    const expectedName = pm.variables.get(\"req_name\");\r",
+											"    const expectedEmail = pm.variables.get(\"req_email\");\r",
+											"    const expectedGender = pm.variables.get(\"req_gender\");\r",
+											"    const expectedStatus = pm.variables.get(\"req_status\");\r",
+											"    \r",
+											"    pm.environment.set(\"existing_email\", expectedEmail);\r",
+											"    pm.expect(jsonData.name).to.eql(expectedName);\r",
+											"    pm.expect(jsonData.email).to.eql(expectedEmail);\r",
+											"    pm.expect(jsonData.gender).to.eql(expectedGender);\r",
+											"    pm.expect(jsonData.status).to.eql(expectedStatus);\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\": \"{{req_name}}\",\r\n    \"email\": \"{{req_email}}\",\r\n    \"gender\": \"{{req_gender}}\",\r\n    \"status\": \"{{req_status}}\",\r\n    \"unknown_field\": \"{{req_mes}}\"\r\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/{{resource_users}}",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"{{resource_users}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "USER_CREATE_024 错误的Content-Type",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"USER_CREATE_024 状态码为422\", function () {\r",
+											"    pm.response.to.have.status(422);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"USER_CREATE_024 错误信息校验\", function () {\r",
+											"    const jsonData = pm.response.json();\r",
+											"    const nameError = jsonData[1];\r",
+											"    const emailError = jsonData[0];\r",
+											"    const genderError = jsonData[2];\r",
+											"    const statusError = jsonData[3];\r",
+											"    pm.expect(emailError).to.have.property(\"field\");\r",
+											"    pm.expect(emailError.field).to.eql(\"email\");\r",
+											"    pm.expect(emailError).to.have.property(\"message\");\r",
+											"    \r",
+											"    pm.expect(nameError).to.have.property(\"field\");\r",
+											"    pm.expect(nameError.field).to.eql(\"name\");\r",
+											"    pm.expect(nameError).to.have.property(\"message\");\r",
+											"\r",
+											"    pm.expect(genderError).to.have.property(\"field\");\r",
+											"    pm.expect(genderError.field).to.eql(\"gender\");\r",
+											"    pm.expect(genderError).to.have.property(\"message\");\r",
+											"\r",
+											"    pm.expect(statusError).to.have.property(\"field\");\r",
+											"    pm.expect(statusError.field).to.eql(\"status\");\r",
+											"    pm.expect(statusError).to.have.property(\"message\");\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"const timestamp = Date.now();\r",
+											"pm.variables.set(\"req_name\", \"张三\");\r",
+											"pm.variables.set(\"req_email\", \"error_content_type\" + timestamp + \"@test.com\"); \r",
+											"pm.variables.set(\"req_gender\", \"male\");\r",
+											"pm.variables.set(\"req_status\", \"active\");"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"protocolProfileBehavior": {
+								"strictSSL": true
+							},
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "text/plain",
+										"type": "text"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\": \"{{req_name}}\",\r\n    \"email\": \"{{req_email}}\",\r\n    \"gender\": \"{{req_gender}}\",\r\n    \"status\": \"{{req_status}}\"\r\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/{{resource_users}}",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"{{resource_users}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "USER_CREATE_025 缺少Content-Type",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"const timestamp = Date.now();\r",
+											"pm.variables.set(\"req_name\", \"张三\");\r",
+											"pm.variables.set(\"req_email\", \"status_empty_test\" + timestamp + \"@test.com\"); \r",
+											"pm.variables.set(\"req_gender\", \"male\");\r",
+											"pm.variables.set(\"req_status\", \"active\");"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"USER_CREATE_025 状态码为422\", function () {\r",
+											"    pm.response.to.have.status(422);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"USER_CREATE_025 错误信息校验\", function () {\r",
+											"    const jsonData = pm.response.json();\r",
+											"    const nameError = jsonData[1];\r",
+											"    const emailError = jsonData[0];\r",
+											"    const genderError = jsonData[2];\r",
+											"    const statusError = jsonData[3];\r",
+											"    pm.expect(emailError).to.have.property(\"field\");\r",
+											"    pm.expect(emailError.field).to.eql(\"email\");\r",
+											"    pm.expect(emailError).to.have.property(\"message\");\r",
+											"    \r",
+											"    pm.expect(nameError).to.have.property(\"field\");\r",
+											"    pm.expect(nameError.field).to.eql(\"name\");\r",
+											"    pm.expect(nameError).to.have.property(\"message\");\r",
+											"\r",
+											"    pm.expect(genderError).to.have.property(\"field\");\r",
+											"    pm.expect(genderError.field).to.eql(\"gender\");\r",
+											"    pm.expect(genderError).to.have.property(\"message\");\r",
+											"\r",
+											"    pm.expect(statusError).to.have.property(\"field\");\r",
+											"    pm.expect(statusError.field).to.eql(\"status\");\r",
+											"    pm.expect(statusError).to.have.property(\"message\");\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\": \"{{req_name}}\",\r\n    \"email\": \"{{req_email}}\",\r\n    \"gender\": \"{{req_gender}}\",\r\n    \"status\": \"{{req_status}}\"\r\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/{{resource_users}}",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"{{resource_users}}"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "鉴权测试",
+					"item": [
+						{
+							"name": "USER_CREATE_026 无token",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"const timestamp = Date.now();\r",
+											"pm.variables.set(\"req_name\", \"张三\");\r",
+											"pm.variables.set(\"req_email\", \"missinsg_token_test\" + timestamp + \"@test.com\"); \r",
+											"pm.variables.set(\"req_gender\", \"male\");\r",
+											"pm.variables.set(\"req_status\", \"active\");"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"USER_CREATE_026 状态码为401\", function () {\r",
+											"    pm.response.to.have.status(401);\r",
+											"});\r",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\": \"{{req_name}}\",\r\n    \"email\": \"{{req_email}}\",\r\n    \"gender\": \"{{req_gender}}\",\r\n    \"status\": \"{{req_status}}\"\r\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/{{resource_users}}",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"{{resource_users}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "USER_CREATE_027 token过期",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"const timestamp = Date.now();\r",
+											"pm.variables.set(\"req_name\", \"张三\");\r",
+											"pm.variables.set(\"req_email\", \"expired_token_test\" + timestamp + \"@test.com\"); \r",
+											"pm.variables.set(\"req_gender\", \"male\");\r",
+											"pm.variables.set(\"req_status\", \"active\");"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"USER_CREATE_027 状态码为401\", function () {\r",
+											"    pm.response.to.have.status(401);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"USER_CREATE_027 错误信息校验)\", function () {\r",
+											"    const jsonData = pm.response.json();\r",
+											"    pm.expect(jsonData).to.have.property(\"message\");\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"protocolProfileBehavior": {
+								"strictSSL": false
+							},
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer {{expired token}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\": \"{{req_name}}\",\r\n    \"email\": \"{{req_email}}\",\r\n    \"gender\": \"{{req_gender}}\",\r\n    \"status\": \"{{req_status}}\"\r\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/{{resource_users}}",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"{{resource_users}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "USER_CREATE_028 错误token",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"const timestamp = Date.now();\r",
+											"pm.variables.set(\"req_name\", \"张三\");\r",
+											"pm.variables.set(\"req_email\", \"error_token_test\" + timestamp + \"@test.com\"); \r",
+											"pm.variables.set(\"req_gender\", \"male\");\r",
+											"pm.variables.set(\"req_status\", \"active\");"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"USER_CREATE_028 状态码为401\", function () {\r",
+											"    pm.response.to.have.status(401);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"USER_CREATE_028 错误信息校验)\", function () {\r",
+											"    const jsonData = pm.response.json();\r",
+											"    pm.expect(jsonData).to.have.property(\"message\");\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"protocolProfileBehavior": {
+								"strictSSL": false
+							},
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer {{error_token}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\": \"{{req_name}}\",\r\n    \"email\": \"{{req_email}}\",\r\n    \"gender\": \"{{req_gender}}\",\r\n    \"status\": \"{{req_status}}\"\r\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/{{resource_users}}",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"{{resource_users}}"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "其他异常",
+					"item": [
+						{
+							"name": "USER_CREATE_003 重复邮箱创建用户",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"USER_CREATE_003 状态码为422\", function () {\r",
+											"    pm.response.to.have.status(422);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"USER_CREATE_003 错误信息校验\", function () {\r",
+											"    const jsonData = pm.response.json();\r",
+											"    const errorItem = jsonData[0];\r",
+											"    pm.expect(errorItem).to.have.property('field');\r",
+											"    pm.expect(errorItem.field).to.eql(\"email\");\r",
+											"    pm.expect(errorItem).to.have.property(\"message\");\r",
+											"});\r",
+											"\r",
+											""
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"pm.variables.set(\"req_name\",\"张三\");\r",
+											"pm.variables.set(\"req_gender\",\"male\");\r",
+											"pm.variables.set(\"req_status\",\"active\")\r",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n  \"name\": \"{{req_name}}\",\r\n  \"email\": \"{{existing_email}}\",\r\n  \"gender\": \"{{req_gender}}\",\r\n  \"status\": \"{{req_status}}\"\r\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/{{resource_users}}",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"{{resource_users}}"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "删除用户接口",
+			"item": [
+				{
+					"name": "正向用例",
+					"item": [
+						{
+							"name": "USER_DELETE_001 正常删除用户",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"USER_DELETE_001 状态码为204\", function () {\r",
+											"    pm.response.to.have.status(204);\r",
+											"});\r",
+											""
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"// USER_DELETE_001 前置脚本：检查待删除用户ID是否存在\r",
+											"const userId = pm.environment.get(\"created_user_id\");\r",
+											"if (!userId) {\r",
+											"    console.log(\"USER_DELETE_001: 警告 - 未找到环境变量 created_user_id，请先执行 USER_CREATE_001\");\r",
+											"}"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/{{resource_users}}/{{created_user_id}}",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"{{resource_users}}",
+										"{{created_user_id}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "USER_DELETE_004 token放在url里",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"USER_DELETE_004 状态码为204\", function () {\r",
+											"    pm.response.to.have.status(204);\r",
+											"});\r",
+											"\r",
+											""
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "",
+										"value": "",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/{{resource_users}}/{{bug_test_user_id}}?access-token={{token}}",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"{{resource_users}}",
+										"{{bug_test_user_id}}"
+									],
+									"query": [
+										{
+											"key": "access-token",
+											"value": "{{token}}"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "参数异常测试",
+					"item": [
+						{
+							"name": "USER_DELETE_005 无效的用户ID格式",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"USER_DELETE_005 状态码为404\", function () {\r",
+											"    pm.response.to.have.status(404);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"USER_CREATE_005 错误信息校验\", function () {\r",
+											"    var jsonData = pm.response.json();\r",
+											"    pm.expect(jsonData).to.have.property(\"message\");\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/{{resource_users}}/abcde",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"{{resource_users}}",
+										"abcde"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "鉴权测试",
+					"item": [
+						{
+							"name": "USER_DELETE_006 错误token",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"USER_DELETE_006 状态码为401\", function () {\r",
+											"    pm.response.to.have.status(401);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"USER_CREATE_006 错误信息校验\", function () {\r",
+											"    var jsonData = pm.response.json();\r",
+											"    pm.expect(jsonData).to.have.property(\"message\");\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{error_token}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/{{resource_users}}/{{persist_user_id}}",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"{{resource_users}}",
+										"{{persist_user_id}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "USER_DELETE_007 token过期",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"USER_DELETE_007 状态码为401\", function () {\r",
+											"    pm.response.to.have.status(401);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"USER_CREATE_007 错误信息校验\", function () {\r",
+											"    var jsonData = pm.response.json();\r",
+											"    pm.expect(jsonData).to.have.property(\"message\");\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{expired token}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/{{resource_users}}/{{persist_user_id}}",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"{{resource_users}}",
+										"{{persist_user_id}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "USER_DELETE_008 关联",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"const timestamp = Date.now();\r",
+											"pm.variables.set(\"req_name\", \"del\");\r",
+											"pm.variables.set(\"req_email\", \"del\" + timestamp + \"@test.com\"); \r",
+											"pm.variables.set(\"req_gender\", \"male\");\r",
+											"pm.variables.set(\"req_status\", \"active\");"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"状态码为 201\", function () {\r",
+											"    pm.response.to.have.status(201);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"响应体字段校验\", function () {\r",
+											"    const jsonData = pm.response.json();\r",
+											"    pm.expect(jsonData).to.have.property('id');\r",
+											"    pm.environment.set(\"other_user_id\", pm.response.json().id);\r",
+											"    const expectedName = pm.variables.get(\"req_name\");\r",
+											"    const expectedEmail = pm.variables.get(\"req_email\");\r",
+											"    const expectedGender = pm.variables.get(\"req_gender\");\r",
+											"    const expectedStatus = pm.variables.get(\"req_status\");\r",
+											"    \r",
+											"    pm.environment.set(\"existing_email\", expectedEmail);\r",
+											"    pm.expect(jsonData.name).to.eql(expectedName);\r",
+											"    pm.expect(jsonData.email).to.eql(expectedEmail);\r",
+											"    pm.expect(jsonData.gender).to.eql(expectedGender);\r",
+											"    pm.expect(jsonData.status).to.eql(expectedStatus);\r",
+											"});\r",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer 5fb4a8cd55db02e245cc230a3e2d19aab56393be5748154472fbc7bf7a5fffea",
+										"type": "text"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\": \"{{req_name}}\",\r\n    \"email\": \"{{req_email}}\",\r\n    \"gender\": \"{{req_gender}}\",\r\n    \"status\": \"{{req_status}}\"\r\n}"
+								},
+								"url": {
+									"raw": "{{base_url}}/{{resource_users}}",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"{{resource_users}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "USER_DELETE_008 删除其他人创建的用户",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"USER_DELETE_008 状态码为404\", function () {\r",
+											"    pm.expect(pm.response.code).to.be.oneOf(404);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"USER_DELETE_008 响应体包含message字段\", function () {\r",
+											"    const jsonData = pm.response.json();\r",
+											"    pm.expect(jsonData).to.have.property(\"message\");\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/{{resource_users}}/{{other_user_id}}",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"{{resource_users}}",
+										"{{other_user_id}}"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "其他异常",
+					"item": [
+						{
+							"name": "USER_DELETE_002 重复删除用户",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"USER_DELETE_002 状态码是404\", function () {\r",
+											"    pm.response.to.have.status(404);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"USER_CREATE_002 错误信息校验\", function () {\r",
+											"    var jsonData = pm.response.json();\r",
+											"    pm.expect(jsonData).to.have.property(\"message\");\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/{{resource_users}}/{{created_user_id}}",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"{{resource_users}}",
+										"{{created_user_id}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "USER_DELETE_003 删除不存在的用户",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"USER_DELETE_003 状态码为404\", function () {\r",
+											"    pm.response.to.have.status(404);\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/{{resource_users}}/9999999",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"{{resource_users}}",
+										"9999999"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "获取用户列表接口",
+			"item": [
+				{
+					"name": "正向用例",
+					"item": [
+						{
+							"name": "USER_LIST_001 正常获取用户列表（无参数）",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"USER_LIST_001 状态码为200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/{{resource_users}}",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"{{resource_users}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "USER_LIST_002 分页+过滤组合验证",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"\r",
+											"pm.test(\"USER_LIST_002 状态码为200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"USER_LIST_003 返回数据中所有gender为male且status为active\", function () {\r",
+											"    const jsonData = pm.response.json();\r",
+											"    pm.expect(jsonData).to.be.an('array');\r",
+											"    jsonData.forEach(user => {\r",
+											"        pm.expect(user.gender).to.eql(\"male\");\r",
+											"        pm.expect(user.status).to.eql(\"active\");\r",
+											"    });\r",
+											"});\r",
+											"\r",
+											"pm.test(\"USER_LIST_003 返回字段包含id,name,email,gender,status\", function () {\r",
+											"    const jsonData = pm.response.json();\r",
+											"    if (jsonData.length > 0) {\r",
+											"        const user = jsonData[0];\r",
+											"        pm.expect(user).to.include.all.keys(\"id\", \"name\", \"email\", \"gender\", \"status\");\r",
+											"    }\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/{{resource_users}}?page=1&per_page=50&gender=male&status=active",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"{{resource_users}}"
+									],
+									"query": [
+										{
+											"key": "page",
+											"value": "1"
+										},
+										{
+											"key": "per_page",
+											"value": "50"
+										},
+										{
+											"key": "gender",
+											"value": "male"
+										},
+										{
+											"key": "status",
+											"value": "active"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "USER_LIST_003 分页组合验证",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"USER_LIST_003 状态码为200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"USER_LIST_003 返回数据条数不超过10\", function () {\r",
+											"    const jsonData = pm.response.json();\r",
+											"    pm.expect(jsonData.length).to.be.at.most(10);\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/{{resource_users}}?page=5&per_page=10",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"{{resource_users}}"
+									],
+									"query": [
+										{
+											"key": "page",
+											"value": "5"
+										},
+										{
+											"key": "per_page",
+											"value": "10"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "USER_LIST_004 过滤组合验证",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"USER_LIST_004 状态码为200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"USER_LIST_004 所有用户gender为male且status为active\", function () {\r",
+											"    const jsonData = pm.response.json();\r",
+											"    jsonData.forEach(user => {\r",
+											"        pm.expect(user.gender).to.eql(\"male\");\r",
+											"        pm.expect(user.status).to.eql(\"active\");\r",
+											"    });\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/{{resource_users}}?gender=male&status=active",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"{{resource_users}}"
+									],
+									"query": [
+										{
+											"key": "gender",
+											"value": "male"
+										},
+										{
+											"key": "status",
+											"value": "active"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "USER_LIST_005 name过滤",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"// USER_LIST_005 前置脚本：确认有可用用户名\r",
+											"const exactName = pm.environment.get(\"exact_user_name\");\r",
+											"if (!exactName) {\r",
+											"    console.log(\"USER_LIST_006: 警告 - exact_user_name 缺失，请先执行USER_CREATE_001并保存用户名\");\r",
+											"}"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"\r",
+											"pm.test(\"USER_LIST_005 状态码为200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"USER_LIST_005 环境变量 exact_user_name 存在且非空\", function () {\r",
+											"    const expectedName = pm.environment.get(\"exact_user_name\");\r",
+											"    pm.expect(expectedName).to.be.a('string').and.not.empty;\r",
+											"});\r",
+											"\r",
+											"pm.test(\"USER_LIST_005 返回结果至少包含1个用户\", function () {\r",
+											"    const jsonData = pm.response.json();\r",
+											"    pm.expect(jsonData).to.be.an('array').with.lengthOf.at.least(1);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"USER_LIST_005 返回的所有用户name均为目标值\", function () {\r",
+											"    const jsonData = pm.response.json();\r",
+											"    const expectedName = pm.environment.get(\"exact_user_name\");\r",
+											"    jsonData.forEach(user => {\r",
+											"        pm.expect(user.name).to.eql(expectedName);\r",
+											"    });\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/{{resource_users}}?name={{exact_user_name}}",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"{{resource_users}}"
+									],
+									"query": [
+										{
+											"key": "name",
+											"value": "{{exact_user_name}}"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "USER_LIST_006 name模糊匹配",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"USER_LIST_006 状态码为200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"USER_LIST_006 返回的用户name包含'zh'\", function () {\r",
+											"    const jsonData = pm.response.json();\r",
+											"    jsonData.forEach(user => {\r",
+											"        pm.expect(user.name.toLowerCase()).to.include(\"zh\");\r",
+											"    });\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									},
+									{
+										"key": "Authorization",
+										"value": "Bearer {{token}}",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/{{resource_users}}?name=zh",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"{{resource_users}}"
+									],
+									"query": [
+										{
+											"key": "name",
+											"value": "zh"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "USER_LIST_007 name不存在",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"\r",
+											"pm.test(\"USER_LIST_007 状态码为200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"USER_LIST_007 返回空数组\", function () {\r",
+											"    const jsonData = pm.response.json();\r",
+											"    pm.expect(jsonData).to.be.an('array').that.is.empty;\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"const randomSuffix = Date.now() + \"_\" + Math.random().toString(36).substring(2, 10);\r",
+											"const nonexistentName = \"non_existent_user_\" + randomSuffix;\r",
+											"pm.variables.set(\"nonexistent_name\", nonexistentName);\r",
+											"console.log(\"USER_LIST_008: 使用动态不存在的用户名 =\", nonexistentName);"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/{{resource_users}}?name={{nonexistent_name}}",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"{{resource_users}}"
+									],
+									"query": [
+										{
+											"key": "name",
+											"value": "{{nonexistent_name}}"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "USER_LIST_008 gender过滤",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"USER_LIST_008 状态码为200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"USER_LIST_008 所有用户gender为male\", function () {\r",
+											"    const jsonData = pm.response.json();\r",
+											"    jsonData.forEach(user => {\r",
+											"        pm.expect(user.gender).to.eql(\"male\");\r",
+											"    });\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/{{resource_users}}?gender=male",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"{{resource_users}}"
+									],
+									"query": [
+										{
+											"key": "gender",
+											"value": "male"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "USER_LIST_009 gender传入非法值",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"USER_LIST_009 状态码为200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/{{resource_users}}?gender=zoo",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"{{resource_users}}"
+									],
+									"query": [
+										{
+											"key": "gender",
+											"value": "zoo"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "USER_LIST_010 status过滤",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"USER_LIST_010 状态码为200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"USER_LIST_010 所有用户status为active\", function () {\r",
+											"    const jsonData = pm.response.json();\r",
+											"    jsonData.forEach(user => {\r",
+											"        pm.expect(user.status).to.eql(\"active\");\r",
+											"    });\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/{{resource_users}}?status=active",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"{{resource_users}}"
+									],
+									"query": [
+										{
+											"key": "status",
+											"value": "active"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "USER_LIST_011 status传入非法值",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"USER_LIST_011 状态码为200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "a",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/{{resource_users}}?status=zoo",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"{{resource_users}}"
+									],
+									"query": [
+										{
+											"key": "status",
+											"value": "zoo"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "USER_LIST_012 page参数缺失",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"// USER_LIST_012 page参数缺失（默认page=1）\r",
+											"pm.test(\"USER_LIST_012 状态码为200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"USER_LIST_012 返回数据条数不超过50\", function () {\r",
+											"    const jsonData = pm.response.json();\r",
+											"    pm.expect(jsonData.length).to.be.at.most(50);\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/{{resource_users}}?per_page=50",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"{{resource_users}}"
+									],
+									"query": [
+										{
+											"key": "per_page",
+											"value": "50"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "USER_LIST_013 per_page参数缺失",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"// USER_LIST_013 per_page参数缺失（默认per_page=10）\r",
+											"pm.test(\"USER_LIST_013 状态码为200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"USER_LIST_013 返回数据条数不超过10\", function () {\r",
+											"    const jsonData = pm.response.json();\r",
+											"    pm.expect(jsonData.length).to.be.at.most(10);\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/{{resource_users}}?page=2",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"{{resource_users}}"
+									],
+									"query": [
+										{
+											"key": "page",
+											"value": "2"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "USER_LIST_014 page参数传入特殊符号，per_page参数正常",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"USER_LIST_014 状态码为200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"pm.test(\"USER_LIST_014 响应体数组长度应为 5\", function () {\r",
+											"    const jsonData = pm.response.json();\r",
+											"    pm.expect(jsonData).to.be.an('array').that.has.lengthOf(5);\r",
+											"});\r",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/{{resource_users}}?page=@&per_page=5",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"{{resource_users}}"
+									],
+									"query": [
+										{
+											"key": "page",
+											"value": "@"
+										},
+										{
+											"key": "per_page",
+											"value": "5"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "USER_LIST_015 per_page参数传入特殊符号，page参数正常",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"USER_LIST_015 状态码为200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"USER_LIST_015 响应体数组长度应为 10\", function () {\r",
+											"    const jsonData = pm.response.json();\r",
+											"    pm.expect(jsonData).to.be.an('array').that.has.lengthOf(10);\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/{{resource_users}}?page=1&per_page=@\n\n",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"{{resource_users}}"
+									],
+									"query": [
+										{
+											"key": "page",
+											"value": "1"
+										},
+										{
+											"key": "per_page",
+											"value": "@\n\n"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "USER_LIST_016 page参数传入浮点数类型的数据，per_page参数正常",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"USER_LIST_017 状态码为200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/{{resource_users}}?page=2.5&per_page=50",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"{{resource_users}}"
+									],
+									"query": [
+										{
+											"key": "page",
+											"value": "2.5"
+										},
+										{
+											"key": "per_page",
+											"value": "50"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "USER_LIST_017 per_page参数传入浮点数类型的数据，page参数正常",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"USER_LIST_017 状态码为200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/{{resource_users}}?page=1&per_page=20.7",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"{{resource_users}}"
+									],
+									"query": [
+										{
+											"key": "page",
+											"value": "1"
+										},
+										{
+											"key": "per_page",
+											"value": "20.7"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "USER_LIST_018 传入文档未定义的参数",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"USER_LIST_018 状态码为200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/{{resource_users}}?page=1&per_page=20&para=noknow",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"{{resource_users}}"
+									],
+									"query": [
+										{
+											"key": "page",
+											"value": "1"
+										},
+										{
+											"key": "per_page",
+											"value": "20"
+										},
+										{
+											"key": "para",
+											"value": "noknow"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "USER_LIST_019 per_page值为最大值",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"USER_LIST_019 状态码为200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"USER_LIST_019 返回数据条数不超过100\", function () {\r",
+											"    const jsonData = pm.response.json();\r",
+											"    pm.expect(jsonData.length).to.be.at.most(100);\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/{{resource_users}}?page=1&per_page=100",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"{{resource_users}}"
+									],
+									"query": [
+										{
+											"key": "page",
+											"value": "1"
+										},
+										{
+											"key": "per_page",
+											"value": "100"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "USER_LIST_021 per_page值为1",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"USER_LIST_021 状态码为200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"USER_LIST_021 返回数据条数为1\", function () {\r",
+											"    const jsonData = pm.response.json();\r",
+											"    pm.expect(jsonData.length).to.eql(1);\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/{{resource_users}}?page=2&per_page=1",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"{{resource_users}}"
+									],
+									"query": [
+										{
+											"key": "page",
+											"value": "2"
+										},
+										{
+											"key": "per_page",
+											"value": "1"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "USER_LIST_022 per_page值为0",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"USER_LIST_022 状态码为200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/{{resource_users}}?page=1&per_page=0",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"{{resource_users}}"
+									],
+									"query": [
+										{
+											"key": "page",
+											"value": "1"
+										},
+										{
+											"key": "per_page",
+											"value": "0"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "USER_LIST_023 page值为0",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"USER_LIST_023 状态码为200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{base_url}}/{{resource_users}}?page=0&per_page=5",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"{{resource_users}}"
+									],
+									"query": [
+										{
+											"key": "page",
+											"value": "0"
+										},
+										{
+											"key": "per_page",
+											"value": "5"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "USER_LIST_024 page值为1",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"USER_LIST_024 状态码为200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/{{resource_users}}?page=1&per_page=5",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"{{resource_users}}"
+									],
+									"query": [
+										{
+											"key": "page",
+											"value": "1"
+										},
+										{
+											"key": "per_page",
+											"value": "5"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "USER_LIST_026 分页数据不重复不遗漏 第二页",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"const responseJson = pm.response.json();\r",
+											"\r",
+											"pm.test(\"Step 1 - Page 2: Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Step 1 - Page 2: Response is an array with 5 items\", function () {\r",
+											"    pm.expect(responseJson).to.be.an('array').that.has.lengthOf(5);\r",
+											"});\r",
+											"\r",
+											"if (responseJson.length > 0) {\r",
+											"    const page2Ids = responseJson.map(user => user.id);\r",
+											"    pm.collectionVariables.set(\"page2Ids\", JSON.stringify(page2Ids));\r",
+											"    console.log(`已保存 Page 2 的 ID 列表: ${page2Ids}`);\r",
+											"}\r",
+											"\r",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/{{resource_users}}?page=2&per_page=5",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"{{resource_users}}"
+									],
+									"query": [
+										{
+											"key": "page",
+											"value": "2"
+										},
+										{
+											"key": "per_page",
+											"value": "5"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "USER_LIST_026 分页数据不重复不遗漏 第三页",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"// USER_LIST_027_PAGE3 前置脚本：检查上一页ID是否存在\r",
+											"const lastId = pm.environment.get(\"last_id_page2\");\r",
+											"if (!lastId) {\r",
+											"    console.log(\"USER_LIST_027: 警告 - 上一页最后ID不存在，请确保已执行 USER_LIST_027_PAGE2\");\r",
+											"}"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"const responseJson = pm.response.json();\r",
+											"\r",
+											"pm.test(\"Step 2 - Page 3: Status code is 200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"Step 2 - Page 3: Response is an array with 5 items\", function () {\r",
+											"    pm.expect(responseJson).to.be.an('array').that.has.lengthOf(5);\r",
+											"});\r",
+											"\r",
+											"// 从集合变量读取 Page 2 的 ID 数组\r",
+											"let page2Ids = pm.collectionVariables.get(\"page2Ids\");\r",
+											"if (typeof page2Ids === 'string') {\r",
+											"    page2Ids = JSON.parse(page2Ids);\r",
+											"}\r",
+											"\r",
+											"const page3Ids = responseJson.map(user => user.id);\r",
+											"\r",
+											"pm.test(\"Pagination Consistency: No duplicate IDs between Page 2 and Page 3\", function () {\r",
+											"    const overlap = page3Ids.filter(id => page2Ids.includes(id));\r",
+											"    pm.expect(overlap).to.be.an('array').that.is.empty;\r",
+											"});\r",
+											"\r",
+											"// 可选：验证 Page 3 内部无重复\r",
+											"pm.test(\"Page 3 has no duplicate IDs\", function () {\r",
+											"    const uniqueIds = [...new Set(page3Ids)];\r",
+											"    pm.expect(uniqueIds.length).to.equal(page3Ids.length);\r",
+											"});\r",
+											"\r",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/{{resource_users}}?page=3&per_page=5",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"{{resource_users}}"
+									],
+									"query": [
+										{
+											"key": "page",
+											"value": "3"
+										},
+										{
+											"key": "per_page",
+											"value": "5"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "USER_LIST_029 获取用户列表五次",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"// --- 第一部分：幂等性验证（不变）---\r",
+											"pm.test(\"状态码为200\", () => pm.response.to.have.status(200));\r",
+											"const responseJson = pm.response.json();\r",
+											"pm.test(\"响应体为数组\", () => pm.expect(responseJson).to.be.an('array'));\r",
+											"\r",
+											"// 以第一次请求的总数为基准进行对比\r",
+											"let firstTotal = pm.collectionVariables.get(\"USER_LIST_029_firstTotal\");\r",
+											"if (!firstTotal) {\r",
+											"    pm.collectionVariables.set(\"USER_LIST_029_firstTotal\", pm.response.headers.get(\"X-Pagination-Total\"));\r",
+											"} else {\r",
+											"    const currentTotal = pm.response.headers.get(\"X-Pagination-Total\");\r",
+											"    pm.test(`第 ${pm.collectionVariables.get(\"USER_LIST_029_loop\")} 次请求总条数与首次一致`, () => {\r",
+											"        pm.expect(currentTotal).to.equal(firstTotal);\r",
+											"    });\r",
+											"}\r",
+											"\r",
+											"// --- 第二部分：循环控制（关键修改点）---\r",
+											"const loopCount = parseInt(pm.collectionVariables.get(\"USER_LIST_029_loop\"), 10);\r",
+											"const maxLoops = 5;\r",
+											"\r",
+											"if (loopCount < maxLoops) {\r",
+											"    // 继续循环：将下一个请求设定为自身\r",
+											"    postman.setNextRequest(pm.info.requestName);\r",
+											"} else {\r",
+											"    // 循环结束：清理计数器和临时变量，但不终止整个 Runner，让它自然继续\r",
+											"    pm.collectionVariables.unset(\"USER_LIST_029_loop\");\r",
+											"    pm.collectionVariables.unset(\"USER_LIST_029_firstTotal\");\r",
+											"    console.log(\"[USER_LIST_029] 循环结束，清理计数变量\");\r",
+											"    \r",
+											"    // ⭐ 核心修复：不要调用 postman.setNextRequest(null)\r",
+											"    // 如果不调用，Runner 会自动按照 Collection 的顺序执行下一个请求。\r",
+											"}\r",
+											"\r",
+											"// ⚠️ 注意：整个 Tests 里不要写 postman.setNextRequest(null)\r",
+											"\r",
+											""
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"// 获取当前循环次数，确保它为数字\r",
+											"let loopCount = pm.collectionVariables.get(\"USER_LIST_029_loop\");\r",
+											"if (!loopCount) {\r",
+											"    loopCount = 1;\r",
+											"} else {\r",
+											"    loopCount = parseInt(loopCount, 10) + 1;\r",
+											"}\r",
+											"pm.collectionVariables.set(\"USER_LIST_029_loop\", loopCount);\r",
+											"console.log(`[USER_LIST_029] 当前执行第 ${loopCount} 次`);"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/{{resource_users}}?page=1&per_page=10",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"{{resource_users}}"
+									],
+									"query": [
+										{
+											"key": "page",
+											"value": "1"
+										},
+										{
+											"key": "per_page",
+											"value": "10"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "参数异常测试",
+					"item": [
+						{
+							"name": "USER_LIST_020 per_page值超出范围",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"USER_LIST_020 状态码为422\", function () {\r",
+											"    pm.response.to.have.status(422);\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/{{resource_users}}users?page=1&per_page=101",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"{{resource_users}}users"
+									],
+									"query": [
+										{
+											"key": "page",
+											"value": "1"
+										},
+										{
+											"key": "per_page",
+											"value": "101"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "USER_LIST_025 page值为9999999",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"USER_LIST_025 状态码为200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});\r",
+											"\r",
+											"pm.test(\"USER_LIST_025 返回空数组\", function () {\r",
+											"    const jsonData = pm.response.json();\r",
+											"    pm.expect(jsonData).to.be.an('array').that.is.empty;\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/{{resource_users}}?page=9999999&per_page=5",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"{{resource_users}}"
+									],
+									"query": [
+										{
+											"key": "page",
+											"value": "9999999"
+										},
+										{
+											"key": "per_page",
+											"value": "5"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "其他异常",
+					"item": [
+						{
+							"name": "USER_LIST_027 使用DELETE请求方法",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"\r",
+											"pm.test(\"USER_LIST_027 状态码为405\", function () {\r",
+											"    pm.response.to.have.status(405);\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "DELETE",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/json",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/{{resource_users}}?page=1&per_page=10",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"{{resource_users}}"
+									],
+									"query": [
+										{
+											"key": "page",
+											"value": "1"
+										},
+										{
+											"key": "per_page",
+											"value": "10"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "USER_LIST_028 Accept为application/xml",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"USER_LIST_028 状态码为200\", function () {\r",
+											"    pm.response.to.have.status(200);\r",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [
+									{
+										"key": "Accept",
+										"value": "application/xml",
+										"type": "text"
+									}
+								],
+								"url": {
+									"raw": "{{base_url}}/{{resource_users}}?page=1&per_page=11",
+									"host": [
+										"{{base_url}}"
+									],
+									"path": [
+										"{{resource_users}}"
+									],
+									"query": [
+										{
+											"key": "page",
+											"value": "1"
+										},
+										{
+											"key": "per_page",
+											"value": "11"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "跨接口测试",
+			"item": [
+				{
+					"name": "USER_CREATE_GET_001 查询创建过的用户",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// 从环境变量中取出创建时的期望值\r",
+									"const expectedName = pm.environment.get(\"persist_user_name\");      \r",
+									"const expectedEmail = pm.environment.get(\"persist_email\");      \r",
+									"const expectedId = Number(pm.environment.get(\"persist_user_id\"));\r",
+									"\r",
+									"pm.test(\"USER_CREATE_GET_001 状态码为200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"const jsonData = pm.response.json();\r",
+									"\r",
+									"pm.test(\"USER_CREATE_GET_001匹配USER_CREATE_001的数据\", function () {\r",
+									"    pm.expect(jsonData.id).to.equal(expectedId);\r",
+									"    pm.expect(jsonData.name).to.equal(expectedName);\r",
+									"    pm.expect(jsonData.email).to.equal(expectedEmail);\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/{{resource_users}}/{{persist_user_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"{{resource_users}}",
+								"{{persist_user_id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "USER_DELETE_GET_002 删除后查询验证不存在",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"USER_DELETE_GET_002 状态码为404\", function () {\r",
+									"    pm.response.to.have.status(404);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}",
+								"type": "text"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/{{resource_users}}/{{created_user_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"{{resource_users}}",
+								"{{created_user_id}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "lastIdFromPage2",
+			"value": ""
+		},
+		{
+			"key": "page2Ids",
+			"value": ""
+		}
+	]
+}
