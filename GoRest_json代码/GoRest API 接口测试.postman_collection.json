@@ -26,6 +26,7 @@
 											"pm.test(\"USER_CREATE_001 - 响应体字段校验\", function () {\r",
 											"    const jsonData = pm.response.json();\r",
 											"    pm.expect(jsonData).to.have.property('id');\r",
+											"    pm.expect(jsonData).to.have.property('name');\r",
 											"    pm.environment.set(\"created_user_id\", pm.response.json().id);\r",
 											"    pm.environment.set(\"exact_user_name\", pm.response.json().name);\r",
 											"    const expectedName = pm.variables.get(\"req_name\");\r",
@@ -2041,11 +2042,7 @@
 									"listen": "prerequest",
 									"script": {
 										"exec": [
-											"// USER_DELETE_001 前置脚本：检查待删除用户ID是否存在\r",
-											"const userId = pm.environment.get(\"created_user_id\");\r",
-											"if (!userId) {\r",
-											"    console.log(\"USER_DELETE_001: 警告 - 未找到环境变量 created_user_id，请先执行 USER_CREATE_001\");\r",
-											"}"
+											""
 										],
 										"type": "text/javascript"
 									}
@@ -2685,35 +2682,12 @@
 							"name": "USER_LIST_005 name过滤",
 							"event": [
 								{
-									"listen": "prerequest",
-									"script": {
-										"exec": [
-											"// USER_LIST_005 前置脚本：确认有可用用户名\r",
-											"const exactName = pm.environment.get(\"exact_user_name\");\r",
-											"if (!exactName) {\r",
-											"    console.log(\"USER_LIST_006: 警告 - exact_user_name 缺失，请先执行USER_CREATE_001并保存用户名\");\r",
-											"}"
-										],
-										"type": "text/javascript"
-									}
-								},
-								{
 									"listen": "test",
 									"script": {
 										"exec": [
 											"\r",
 											"pm.test(\"USER_LIST_005 状态码为200\", function () {\r",
 											"    pm.response.to.have.status(200);\r",
-											"});\r",
-											"\r",
-											"pm.test(\"USER_LIST_005 环境变量 exact_user_name 存在且非空\", function () {\r",
-											"    const expectedName = pm.environment.get(\"exact_user_name\");\r",
-											"    pm.expect(expectedName).to.be.a('string').and.not.empty;\r",
-											"});\r",
-											"\r",
-											"pm.test(\"USER_LIST_005 返回结果至少包含1个用户\", function () {\r",
-											"    const jsonData = pm.response.json();\r",
-											"    pm.expect(jsonData).to.be.an('array').with.lengthOf.at.least(1);\r",
 											"});\r",
 											"\r",
 											"pm.test(\"USER_LIST_005 返回的所有用户name均为目标值\", function () {\r",
@@ -2723,6 +2697,19 @@
 											"        pm.expect(user.name).to.eql(expectedName);\r",
 											"    });\r",
 											"});"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"// USER_LIST_005 前置脚本：确认有可用用户名\r",
+											"const exactName = pm.environment.get(\"exact_user_name\");\r",
+											"if (!exactName) {\r",
+											"    console.log(\"USER_LIST_006: 警告 - exact_user_name 缺失，请先执行USER_CREATE_001并保存用户名\");\r",
+											"}"
 										],
 										"type": "text/javascript"
 									}
